@@ -19,13 +19,13 @@ from report_parser import (parse_report, date_from_filename,
 
 st.set_page_config(page_title="자산운용일보", page_icon="📊", layout="wide")
 
-# 미래에셋생명 프리미엄 브랜드 컬러 셋
-BRAND_NAVY = "#004B93"
-BRAND_ORANGE = "#EC6608"
-BRAND_BEIGE = "#FFF6EE"
+# 미래에셋증권 프리미엄 브랜드 컬러 셋
+BRAND_NAVY = "#043B72"
+BRAND_ORANGE = "#F58220"
+BRAND_BEIGE = "#F0F9FF"
 
 POS, NEG, BRAND = "#DC2626", "#2563EB", BRAND_NAVY
-PREMIUM_COLORS = ["#004B93", "#EC6608", "#0284C7", "#F97316", "#0EA5E9", "#3B82F6", "#F59E0B"]
+PREMIUM_COLORS = ["#043B72", "#F58220", "#0284C7", "#F97316", "#0EA5E9", "#3B82F6", "#F59E0B"]
 
 # ===================================================================
 # Session State for Login Authentication
@@ -59,7 +59,7 @@ if not st.session_state["logged_in"]:
             div[data-testid="stForm"] {
                 background: #FFFFFF !important;
                 border: 1px solid #E2E8F0 !important;
-                border-left: 6px solid #EC6608 !important;
+                border-left: 6px solid #F58220 !important;
                 border-radius: 16px !important;
                 padding: 40px !important;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
@@ -80,18 +80,18 @@ if not st.session_state["logged_in"]:
             
             /* Form submit button styling with brand colors & hover animation */
             div[data-testid="stForm"] button[type="submit"] {
-                background-color: #004B93 !important;
+                background-color: #043B72 !important;
                 color: #FFFFFF !important;
                 border: none !important;
                 font-weight: 700 !important;
                 padding: 12px 24px !important;
                 border-radius: 8px !important;
-                box-shadow: 0 4px 12px rgba(0, 75, 147, 0.15) !important;
+                box-shadow: 0 4px 12px rgba(4, 59, 114, 0.15) !important;
                 transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
             }
             div[data-testid="stForm"] button[type="submit"]:hover {
-                background-color: #EC6608 !important;
-                box-shadow: 0 6px 18px rgba(236, 102, 8, 0.25) !important;
+                background-color: #F58220 !important;
+                box-shadow: 0 6px 18px rgba(245, 130, 32, 0.25) !important;
                 transform: translateY(-2px) !important;
             }
             div[data-testid="stForm"] button[type="submit"]:active {
@@ -111,12 +111,12 @@ if not st.session_state["logged_in"]:
                 """
                 <div style="text-align: center; margin-bottom: 25px;">
                     <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <span style="color: #004B93; font-weight: 900; font-size: 1.0rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
-                        <span style="color: #EC6608; font-weight: 500; font-size: 0.9rem; border-left: 1px solid #E2E8F0; padding-left: 10px;">미래에셋생명</span>
+                        <span style="color: #043B72; font-weight: 900; font-size: 1.0rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
+                        <span style="color: #F58220; font-weight: 500; font-size: 0.9rem; border-left: 1px solid #E2E8F0; padding-left: 10px;">미래에셋증권</span>
                     </div>
-                    <h2 style="color: #004B93; font-size: 1.9rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">📊 자산운용일보</h2>
+                    <h2 style="color: #043B72; font-size: 1.9rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">📊 자산운용일보</h2>
                     <p style="color: #64748B; font-size: 0.95rem; margin-top: 6px; font-weight: 500;">자산운용본부 인가 인원 전용 시스템</p>
-                    <div style="background-color: #FFF6EE; border: 1px solid #FDBA74; border-radius: 8px; padding: 12px; margin-top: 18px; color: #C2410C; font-weight: 600; font-size: 0.82rem; text-align: center; line-height: 1.4;">
+                    <div style="background-color: #F0F9FF; border: 1px solid #BAE6FD; border-left: 5px solid #043B72; border-radius: 8px; padding: 12px; margin-top: 18px; color: #0369A1; font-weight: 600; font-size: 0.82rem; text-align: center; line-height: 1.4;">
                         🔒 본 화면은 자산운용본부의 인가된 인원만 접속이 가능합니다.
                     </div>
                 </div>
@@ -197,23 +197,23 @@ st.markdown(
             background-color: #FFFFFF !important;
         }
         ul[role="listbox"] li:hover {
-            background-color: #FFF6EE !important;
-            color: #EC6608 !important;
+            background-color: #F0F9FF !important;
+            color: #F58220 !important;
         }
         
         /* Header Banner Card */
         .header-container {
-            background: linear-gradient(90deg, #FFF6EE 0%, #FFFFFF 100%);
-            border: 1px solid #FDBA74; /* Orange-tint border */
-            border-left: 6px solid #EC6608; /* Thick brand orange line */
+            background: linear-gradient(90deg, #F0F9FF 0%, #FFFFFF 100%);
+            border: 1px solid #BAE6FD; /* Cool sky blue border */
+            border-left: 6px solid #043B72; /* Deep brand blue line */
             border-radius: 16px;
             padding: 24px 32px;
             margin-bottom: 28px;
-            box-shadow: 0 4px 20px rgba(236, 102, 8, 0.05);
+            box-shadow: 0 4px 20px rgba(4, 59, 114, 0.05);
         }
         
         .header-title {
-            color: #004B93 !important;
+            color: #043B72 !important;
             font-size: 2.2rem;
             font-weight: 800;
             margin: 0;
@@ -228,7 +228,7 @@ st.markdown(
             font-weight: 500;
         }
         
-        /* Premium Light Metric Cards with Warm Beige touches */
+        /* Premium Light Metric Cards with Cool Sky Blue touches */
         .metric-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
@@ -241,9 +241,9 @@ st.markdown(
         
         .metric-card:hover {
             transform: translateY(-4px);
-            border-color: #EC6608;
-            box-shadow: 0 12px 25px rgba(236, 102, 8, 0.1);
-            background: #FFFBF7; /* Brand warm touch */
+            border-color: #F58220;
+            box-shadow: 0 12px 25px rgba(245, 130, 32, 0.1);
+            background: #F0F9FF; /* Cool Ice-Blue touch */
         }
         
         .metric-label {
@@ -293,15 +293,15 @@ st.markdown(
         }
         
         button[data-baseweb="tab"]:hover {
-            color: #EC6608 !important;
-            background: rgba(236, 102, 8, 0.05) !important;
+            color: #F58220 !important;
+            background: rgba(245, 130, 32, 0.05) !important;
         }
         
         button[data-baseweb="tab"][aria-selected="true"] {
-            background: #004B93 !important;
+            background: #043B72 !important;
             color: #ffffff !important;
-            border: 1px solid #004B93 !important;
-            box-shadow: 0 4px 15px rgba(0, 75, 147, 0.15) !important;
+            border: 1px solid #043B72 !important;
+            box-shadow: 0 4px 15px rgba(4, 59, 114, 0.15) !important;
         }
         
         /* Custom Premium Table with Sticky Headers for Light Mode */
@@ -316,7 +316,7 @@ st.markdown(
             position: sticky !important;
             top: 0 !important;
             z-index: 10 !important;
-            background-color: #004B93 !important; /* Brand Navy Header */
+            background-color: #043B72 !important; /* Brand Navy Header */
             color: #ffffff !important;
             font-weight: 600;
             text-align: center;
@@ -324,7 +324,7 @@ st.markdown(
             border: 1px solid rgba(255, 255, 255, 0.15);
             font-size: 0.85rem;
             white-space: nowrap;
-            box-shadow: inset 0 -2px 0 #EC6608; /* Brand Orange Bottom Border inside th */
+            box-shadow: inset 0 -2px 0 #F58220; /* Brand Orange Bottom Border inside th */
         }
         .premium-table td {
             padding: 8px 12px;
@@ -359,8 +359,8 @@ st.markdown(
     """
     <div class="header-container">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-            <span style="color: #004B93; font-weight: 900; font-size: 1.1rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
-            <span style="color: #EC6608; font-weight: 500; font-size: 1.0rem; border-left: 1px solid #E2E8F0; padding-left: 12px;">미래에셋생명</span>
+            <span style="color: #043B72; font-weight: 900; font-size: 1.1rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
+            <span style="color: #F58220; font-weight: 500; font-size: 1.0rem; border-left: 1px solid #E2E8F0; padding-left: 12px;">미래에셋증권</span>
         </div>
         <h1 class="header-title">📊 자산운용일보</h1>
         <p class="header-subtitle">일보 양식 기준 · 자산구분 대분류별 전월대비 손익 비교 (단위: 억원)</p>
@@ -549,11 +549,11 @@ def df_to_merged_html(df):
     def get_row_style(row):
         t = row.get("행구분", "")
         if t == "총합계":
-            return "background-color: #FFEEDB !important; color: #0F172A !important; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
+            return "background-color: #E0F2FE !important; color: #0F172A !important; font-weight: 700; border-top: 2px solid #043B72; border-bottom: 2px solid #043B72;"
         if t == "대분류합계":
-            return "background-color: #E0F2FE !important; color: #004B93 !important; font-weight: 600;"
+            return "background-color: #F0F9FF !important; color: #043B72 !important; font-weight: 600; border-bottom: 1px solid #BAE6FD;"
         if t in ("중분류소계", "소계"):
-            return "background-color: #F1F5F9 !important; color: #334155 !important;"
+            return "background-color: #F8FAFC !important; color: #334155 !important;"
         return "background-color: #FFFFFF !important; color: #475569 !important;"
 
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
@@ -624,7 +624,7 @@ def comparison_table_to_html(df, m_prev, m_curr):
         is_total = row["자산대분류"] == "합계"
         bg_color = "#E0F2FE" if is_total else ("#F8FAFC" if i % 2 == 1 else "#FFFFFF")
         font_weight = "bold" if is_total else "normal"
-        color_style = "color: #004B93; font-weight: 700;" if is_total else "color: #334155;"
+        color_style = "color: #043B72; font-weight: 700;" if is_total else "color: #334155;"
         
         html += f'<tr style="background-color: {bg_color} !important; {color_style}">'
         
@@ -678,7 +678,7 @@ with tab1:
     # 보안 안내 문구 추가
     st.markdown(
         """
-        <div style="background-color: #FFF6EE; border: 1px solid #FDBA74; border-left: 5px solid #EC6608; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; color: #C2410C; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+        <div style="background-color: #F0F9FF; border: 1px solid #BAE6FD; border-left: 5px solid #043B72; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; color: #0369A1; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
             <span>🔒 본 화면은 자산운용본부의 인가된 인원만 접속이 가능합니다.</span>
         </div>
         """,
