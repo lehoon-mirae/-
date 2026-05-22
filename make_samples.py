@@ -9,7 +9,7 @@ import numpy as np
 from openpyxl import load_workbook
 from report_parser import parse_report, MEASURE_COLS, SUM_COLS
 
-TEMPLATE = "일보_20260520.xlsx"
+TEMPLATE = "/mnt/user-data/uploads/일보_20260520_양식.xlsx"
 FIRST_DATA_ROW = 3        # 엑셀 1-indexed, 데이터 시작 행
 FIRST_MEASURE_COL = 6     # F열 = 첫 측정 컬럼(투자금액)
 
@@ -115,4 +115,4 @@ if __name__ == "__main__":
     struct = parse_report(TEMPLATE)        # 행 구조만 사용 (값은 비어있음)
     for seed, (date_str, scale) in enumerate(MONTHS.items()):
         write_file(date_str, build_values(struct, scale, seed + 1), struct)
-    print("샘플 생성 완료 - 명세 행 수:", int((struct['행구분'] == '명세').sum()))
+    print("샘플 생성 완료 — 명세 행 수:", int((struct['행구분'] == '명세').sum()))

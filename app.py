@@ -17,18 +17,14 @@ import plotly.graph_objects as go
 from report_parser import (parse_report, date_from_filename,
                            MEASURE_COLS, PCT_COLS)
 
-st.set_page_config(page_title="자산운용일보", page_icon="📊", layout="wide")
+st.set_page_config(page_title="자산운용부 일보 대시보드", page_icon="📊", layout="wide")
 
-# 미래에셋생명 프리미엄 브랜드 컬러 셋
-BRAND_NAVY = "#004B93"
-BRAND_ORANGE = "#EC6608"
-BRAND_BEIGE = "#FFF6EE"
-
-POS, NEG, BRAND = "#DC2626", "#2563EB", BRAND_NAVY
-PREMIUM_COLORS = ["#004B93", "#EC6608", "#0284C7", "#F97316", "#0EA5E9", "#3B82F6", "#F59E0B"]
+# 프리미엄 파이낸셜 컬러 셋
+POS, NEG, BRAND = "#10b981", "#ef4444", "#6366f1"
+PREMIUM_COLORS = ["#6366f1", "#10b981", "#3b82f6", "#ec4899", "#8b5cf6", "#f59e0b", "#ef4444"]
 
 # ===================================================================
-# Premium CSS Injection for Mirae Asset Light Design System
+# Premium CSS Injection for Glassmorphism & High-End Financial Vibe
 # ===================================================================
 st.markdown(
     """
@@ -38,32 +34,31 @@ st.markdown(
         /* Global typography & background */
         html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
             font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
-            background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%) !important;
-            color: #1E293B !important;
+            background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #070a13 100%) !important;
+            color: #e5e7eb !important;
         }
         
         /* Sidebar styling */
         section[data-testid="stSidebar"] {
-            background-color: #FFFFFF !important;
-            border-right: 1px solid #E2E8F0 !important;
-        }
-        section[data-testid="stSidebar"] * {
-            color: #334155 !important;
+            background-color: #080c14 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
         }
         
         /* Header Banner Card */
         .header-container {
-            background: linear-gradient(90deg, #FFF6EE 0%, #FFFFFF 100%);
-            border: 1px solid #FDBA74; /* Orange-tint border */
-            border-left: 6px solid #EC6608; /* Thick brand orange line */
+            background: linear-gradient(90deg, rgba(31, 41, 55, 0.4) 0%, rgba(17, 24, 39, 0.4) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 24px 32px;
             margin-bottom: 28px;
-            box-shadow: 0 4px 20px rgba(236, 102, 8, 0.05);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
         
         .header-title {
-            color: #004B93 !important;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-size: 2.2rem;
             font-weight: 800;
             margin: 0;
@@ -71,35 +66,36 @@ st.markdown(
         }
         
         .header-subtitle {
-            color: #475569;
+            color: #9ca3af;
             margin-top: 6px;
             margin-bottom: 0;
             font-size: 0.95rem;
             font-weight: 500;
         }
         
-        /* Premium Light Metric Cards with Warm Beige touches */
+        /* Glassmorphic Metric Cards */
         .metric-card {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 14px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.25);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 12px;
         }
         
         .metric-card:hover {
             transform: translateY(-4px);
-            border-color: #EC6608;
-            box-shadow: 0 12px 25px rgba(236, 102, 8, 0.1);
-            background: #FFFBF7; /* Brand warm touch */
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 12px 25px 0 rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .metric-label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #64748B;
+            color: #9ca3af;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 8px;
@@ -108,7 +104,7 @@ st.markdown(
         .metric-value {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #0F172A;
+            color: #ffffff;
             font-family: 'Plus Jakarta Sans', sans-serif;
             letter-spacing: -0.02em;
         }
@@ -123,18 +119,18 @@ st.markdown(
         }
         
         .delta-up {
-            color: #DC2626; /* Crimson Red for increase */
+            color: #34d399;
         }
         
         .delta-down {
-            color: #2563EB; /* Blue for decrease */
+            color: #f87171;
         }
         
         /* Premium Tabs styling */
         button[data-baseweb="tab"] {
             background-color: transparent !important;
             border: none !important;
-            color: #64748B !important;
+            color: #9ca3af !important;
             font-weight: 600 !important;
             padding: 12px 24px !important;
             border-radius: 8px !important;
@@ -143,61 +139,60 @@ st.markdown(
         }
         
         button[data-baseweb="tab"]:hover {
-            color: #EC6608 !important;
-            background: rgba(236, 102, 8, 0.05) !important;
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.05) !important;
         }
         
         button[data-baseweb="tab"][aria-selected="true"] {
-            background: #004B93 !important;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
             color: #ffffff !important;
-            border: 1px solid #004B93 !important;
-            box-shadow: 0 4px 15px rgba(0, 75, 147, 0.15) !important;
+            border: 1px solid rgba(99, 102, 241, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.12) !important;
         }
         
-        /* Custom Premium Table with Sticky Headers for Light Mode */
+        /* Custom Premium Table with Sticky Headers */
         .premium-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
-            background: #FFFFFF;
-            color: #334155;
+            background: rgba(255, 255, 255, 0.01);
+            color: #d1d5db;
         }
         .premium-table th {
             position: sticky !important;
             top: 0 !important;
             z-index: 10 !important;
-            background-color: #004B93 !important; /* Brand Navy Header */
+            background-color: #0b0f19 !important; /* Perfect opaque dark background to cover scroll items */
+            box-shadow: inset 0 -2px 0 rgba(99, 102, 241, 0.4);
             color: #ffffff !important;
             font-weight: 600;
             text-align: center;
             padding: 11px 14px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             font-size: 0.85rem;
             white-space: nowrap;
-            box-shadow: inset 0 -2px 0 #EC6608; /* Brand Orange Bottom Border inside th */
         }
         .premium-table td {
             padding: 8px 12px;
-            border: 1px solid #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             vertical-align: middle;
         }
         .premium-table tr:hover {
-            background-color: #F8FAFC !important;
+            background-color: rgba(255, 255, 255, 0.04) !important;
         }
         
         /* Divider color adjustment */
         hr {
-            border-color: #E2E8F0 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
         }
         
         /* Chart containers styling */
         .chart-box {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
     </style>
     """,
@@ -208,11 +203,7 @@ st.markdown(
 st.markdown(
     """
     <div class="header-container">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-            <span style="color: #004B93; font-weight: 900; font-size: 1.1rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
-            <span style="color: #EC6608; font-weight: 500; font-size: 1.0rem; border-left: 1px solid #E2E8F0; padding-left: 12px;">미래에셋생명</span>
-        </div>
-        <h1 class="header-title">📊 자산운용일보</h1>
+        <h1 class="header-title">📊 자산운용부 일보 대시보드</h1>
         <p class="header-subtitle">일보 양식 기준 · 자산구분 대분류별 전월대비 손익 비교 (단위: 억원)</p>
     </div>
     """,
@@ -290,32 +281,32 @@ def premium_metric_card(label, value, delta=None, delta_type="up"):
 
 
 def apply_premium_chart_theme(fig):
-    """Plotly 차트에 프리미엄 파이낸셜 디자인 테마 입히기 (미래에셋 라이트 모드)"""
+    """Plotly 차트에 프리미엄 파이낸셜 디자인 테마 입히기."""
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Plus Jakarta Sans, Noto Sans KR, sans-serif", color="#334155"),
-        title_font=dict(size=16, color="#0F172A", family="Plus Jakarta Sans, Noto Sans KR, sans-serif"),
+        font=dict(family="Plus Jakarta Sans, Noto Sans KR, sans-serif", color="#e5e7eb"),
+        title_font=dict(size=16, color="#ffffff", family="Plus Jakarta Sans, Noto Sans KR, sans-serif"),
         legend=dict(
-            bgcolor="rgba(255,255,255,0.8)",
-            bordercolor="#E2E8F0",
-            font=dict(color="#475569")
+            bgcolor="rgba(0,0,0,0)",
+            bordercolor="rgba(255,255,255,0.05)",
+            font=dict(color="#9ca3af")
         ),
     )
     if hasattr(fig, "layout") and fig.layout:
         if "xaxis" in fig.layout and fig.layout.xaxis:
             fig.update_xaxes(
-                gridcolor="#F1F5F9",
-                linecolor="#E2E8F0",
-                tickfont=dict(color="#64748B"),
-                title_font=dict(color="#334155")
+                gridcolor="rgba(255,255,255,0.06)",
+                linecolor="rgba(255,255,255,0.1)",
+                tickfont=dict(color="#9ca3af"),
+                title_font=dict(color="#d1d5db")
             )
         if "yaxis" in fig.layout and fig.layout.yaxis:
             fig.update_yaxes(
-                gridcolor="#F1F5F9",
-                linecolor="#E2E8F0",
-                tickfont=dict(color="#64748B"),
-                title_font=dict(color="#334155")
+                gridcolor="rgba(255,255,255,0.06)",
+                linecolor="rgba(255,255,255,0.1)",
+                tickfont=dict(color="#9ca3af"),
+                title_font=dict(color="#d1d5db")
             )
     return fig
 
@@ -366,17 +357,17 @@ def df_to_merged_html(df):
     def get_row_style(row):
         t = row.get("행구분", "")
         if t == "총합계":
-            return "background-color: #FFEEDB; color: #0F172A; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
+            return "background-color: rgba(99, 102, 241, 0.28); color: #ffffff; font-weight: 700; border-top: 2px solid rgba(99, 102, 241, 0.5); border-bottom: 2px solid rgba(99, 102, 241, 0.5);"
         if t == "대분류합계":
-            return "background-color: #E0F2FE; color: #004B93; font-weight: 600;"
+            return "background-color: rgba(59, 130, 246, 0.2); color: #ffffff; font-weight: 600;"
         if t in ("중분류소계", "소계"):
-            return "background-color: #F1F5F9; color: #334155;"
-        return "color: #475569;"
+            return "background-color: rgba(255, 255, 255, 0.05); color: #e5e7eb;"
+        return "color: #9ca3af;"
 
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
     
     # 스크롤 영역 지정을 위한 wrapper div 추가 및 테이블 마진 제거
-    html = '<div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
+    html = '<div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
     
     # 헤더 생성
     visible_cols = [col for col in df.columns if col not in ("행구분", "자산대분류")]
@@ -437,16 +428,6 @@ tab1, tab2, tab3 = st.tabs(["📄 원본 일보", "📊 요약 대시보드", "�
 
 # ---- 탭 1: 원본 일보 그대로 (세로 셀 병합 HTML 렌더링 + 다차원 계층 필터) ----
 with tab1:
-    # 보안 안내 문구 추가
-    st.markdown(
-        """
-        <div style="background-color: #FFF6EE; border: 1px solid #FDBA74; border-left: 5px solid #EC6608; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; color: #C2410C; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-            <span>🔒 본 화면은 자산운용본부의 인가된 인원만 접속이 가능합니다.</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
     c1, c2, c3 = st.columns([1, 1.2, 1.8])
     sel_date = c1.selectbox("기준일", dates, index=len(dates) - 1,
                             format_func=lambda d: d.strftime("%Y-%m-%d"))
