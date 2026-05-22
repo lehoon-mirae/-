@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 from report_parser import (parse_report, date_from_filename,
                            MEASURE_COLS, PCT_COLS)
 
-st.set_page_config(page_title="자산운용부 일보 대시보드", page_icon="📊", layout="wide")
+st.set_page_config(page_title="자산운용일보", page_icon="📊", layout="wide")
 
 # 미래에셋생명 프리미엄 브랜드 컬러 셋
 BRAND_NAVY = "#004B93"
@@ -212,7 +212,7 @@ st.markdown(
             <span style="color: #004B93; font-weight: 900; font-size: 1.1rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
             <span style="color: #EC6608; font-weight: 500; font-size: 1.0rem; border-left: 1px solid #E2E8F0; padding-left: 12px;">미래에셋생명</span>
         </div>
-        <h1 class="header-title">📊 자산운용부 일보 대시보드</h1>
+        <h1 class="header-title">📊 자산운용일보</h1>
         <p class="header-subtitle">일보 양식 기준 · 자산구분 대분류별 전월대비 손익 비교 (단위: 억원)</p>
     </div>
     """,
@@ -437,6 +437,16 @@ tab1, tab2, tab3 = st.tabs(["📄 원본 일보", "📊 요약 대시보드", "�
 
 # ---- 탭 1: 원본 일보 그대로 (세로 셀 병합 HTML 렌더링 + 다차원 계층 필터) ----
 with tab1:
+    # 보안 안내 문구 추가
+    st.markdown(
+        """
+        <div style="background-color: #FFF6EE; border: 1px solid #FDBA74; border-left: 5px solid #EC6608; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; color: #C2410C; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+            <span>🔒 본 화면은 자산운용본부의 인가된 인원만 접속이 가능합니다.</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
     c1, c2, c3 = st.columns([1, 1.2, 1.8])
     sel_date = c1.selectbox("기준일", dates, index=len(dates) - 1,
                             format_func=lambda d: d.strftime("%Y-%m-%d"))
