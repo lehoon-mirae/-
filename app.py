@@ -44,7 +44,7 @@ if not st.session_state["logged_in"]:
             @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
             
             /* Global typography & background */
-            html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+            html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {
                 font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
                 background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%) !important;
                 color: #1E293B !important;
@@ -66,10 +66,16 @@ if not st.session_state["logged_in"]:
                 margin-top: 50px;
             }
             
-            /* Form inputs styling */
+            /* Force dark text and clean border styling on form inputs and labels */
             div[data-testid="stForm"] input {
                 border-radius: 8px !important;
                 border-color: #E2E8F0 !important;
+                color: #1E293B !important;
+                background-color: #FFFFFF !important;
+            }
+            div[data-testid="stForm"] label p {
+                color: #1E293B !important;
+                font-weight: 600 !important;
             }
             
             /* Form submit button styling with brand colors & hover animation */
@@ -151,19 +157,48 @@ st.markdown(
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
         
         /* Global typography & background */
-        html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .main, .block-container {
             font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
             background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%) !important;
             color: #1E293B !important;
         }
         
-        /* Sidebar styling */
-        section[data-testid="stSidebar"] {
+        /* Force light theme colors on all standard Streamlit markdown texts */
+        div[data-testid="stMarkdownContainer"] p, div[data-testid="stMarkdownContainer"] span {
+            color: #1E293B !important;
+        }
+        
+        /* Sidebar styling - robust light theme */
+        section[data-testid="stSidebar"], [data-testid="stSidebarUserContent"] {
             background-color: #FFFFFF !important;
             border-right: 1px solid #E2E8F0 !important;
         }
         section[data-testid="stSidebar"] * {
             color: #334155 !important;
+        }
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] span, section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] p {
+            color: #0F172A !important;
+        }
+        
+        /* Form & Selectbox & Inputs styling to completely prevent dark-mode blending */
+        div[data-baseweb="select"] *, div[data-baseweb="input"] *, input, select, textarea {
+            color: #1E293B !important;
+        }
+        div[data-baseweb="select"] > div, div[data-baseweb="input"] {
+            background-color: #FFFFFF !important;
+            border-color: #E2E8F0 !important;
+        }
+        label[data-testid="stWidgetLabel"] p {
+            color: #1E293B !important;
+            font-weight: 600 !important;
+        }
+        ul[role="listbox"] * {
+            color: #1E293B !important;
+            background-color: #FFFFFF !important;
+        }
+        ul[role="listbox"] li:hover {
+            background-color: #FFF6EE !important;
+            color: #EC6608 !important;
         }
         
         /* Header Banner Card */
@@ -514,12 +549,12 @@ def df_to_merged_html(df):
     def get_row_style(row):
         t = row.get("행구분", "")
         if t == "총합계":
-            return "background-color: #FFEEDB; color: #0F172A; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
+            return "background-color: #FFEEDB !important; color: #0F172A !important; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
         if t == "대분류합계":
-            return "background-color: #E0F2FE; color: #004B93; font-weight: 600;"
+            return "background-color: #E0F2FE !important; color: #004B93 !important; font-weight: 600;"
         if t in ("중분류소계", "소계"):
-            return "background-color: #F1F5F9; color: #334155;"
-        return "color: #475569;"
+            return "background-color: #F1F5F9 !important; color: #334155 !important;"
+        return "background-color: #FFFFFF !important; color: #475569 !important;"
 
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
     
@@ -567,11 +602,66 @@ def df_to_merged_html(df):
             cell_style = ""
             if col in ["전월대비 증감"] and isinstance(val, (int, float)):
                 if val > 0:
-                    cell_style = f"color: {POS}; font-weight: 600;"
+                    cell_style = f"color: {POS} !important; font-weight: 600;"
                 elif val < 0:
-                    cell_style = f"color: {NEG}; font-weight: 600;"
+                    cell_style = f"color: {NEG} !important; font-weight: 600;"
             
             html += f'<td{rowspan_attr} style="{align_style} {cell_style}">{val_str}</td>'
+    html += '</tbody></table></div>'
+    return html
+
+
+def comparison_table_to_html(df, m_prev, m_curr):
+    """전월대비 비교 표를 프리미엄 HTML 테이블로 렌더링."""
+    html = '<div style="border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02);"><table class="premium-table" style="margin:0; width:100%;"><thead><tr>'
+    
+    headers = ["자산대분류", f"{m_prev} (억원)", f"{m_curr} (억원)", "전월대비 증감", "증감률"]
+    for h in headers:
+        html += f'<th>{h}</th>'
+    html += '</tr></thead><tbody>'
+    
+    for i, (idx, row) in enumerate(df.iterrows()):
+        is_total = row["자산대분류"] == "합계"
+        bg_color = "#E0F2FE" if is_total else ("#F8FAFC" if i % 2 == 1 else "#FFFFFF")
+        font_weight = "bold" if is_total else "normal"
+        color_style = "color: #004B93; font-weight: 700;" if is_total else "color: #334155;"
+        
+        html += f'<tr style="background-color: {bg_color} !important; {color_style}">'
+        
+        # 자산대분류
+        html += f'<td style="text-align: left; font-weight: {font_weight};">{row["자산대분류"]}</td>'
+        
+        # m_prev
+        v_prev = row[m_prev]
+        val_prev = f"{v_prev:,.1f}" if pd.notna(v_prev) else "-"
+        html += f'<td style="text-align: right; font-weight: {font_weight};">{val_prev}</td>'
+        
+        # m_curr
+        v_curr = row[m_curr]
+        val_curr = f"{v_curr:,.1f}" if pd.notna(v_curr) else "-"
+        html += f'<td style="text-align: right; font-weight: {font_weight};">{val_curr}</td>'
+        
+        # 전월대비 증감
+        v_diff = row["전월대비 증감"]
+        if pd.isna(v_diff):
+            val_diff = "-"
+            diff_style = ""
+        else:
+            val_diff = f"{v_diff:+,.1f}"
+            diff_style = f"color: {POS} !important; font-weight: 600;" if v_diff > 0 else (f"color: {NEG} !important; font-weight: 600;" if v_diff < 0 else "")
+            
+        html += f'<td style="text-align: right; {diff_style}">{val_diff}</td>'
+        
+        # 증감률
+        v_pct = row["증감률(%)"]
+        if pd.isna(v_pct) or str(v_pct).strip().lower() in ('nan', 'none', '<na>', ''):
+            val_pct = "-"
+            pct_style = ""
+        else:
+            val_pct = f"{v_pct:+.1f}%"
+            pct_style = f"color: {POS} !important; font-weight: 600;" if v_pct > 0 else (f"color: {NEG} !important; font-weight: 600;" if v_pct < 0 else "")
+            
+        html += f'<td style="text-align: right; {pct_style}">{val_pct}</td>'
         html += '</tr>'
         
     html += '</tbody></table></div>'
@@ -746,16 +836,18 @@ with tab3:
         st.divider()
         st.subheader(f"자산구분 대분류별 {metric} — {m_prev} → {m_curr} (단위: 억원)")
 
+        # Append Total Row for display
         tbl = cmp.reset_index().rename(columns={"index": "자산대분류"})
-        def color(v):
-            if isinstance(v, (int, float)) and pd.notna(v):
-                return f"color:{POS}" if v > 0 else (f"color:{NEG}" if v < 0 else "")
-            return ""
-        styled = (tbl.style
-                  .map(color, subset=["전월대비 증감", "증감률(%)"])
-                  .format({m_prev: "{:,.1f}", m_curr: "{:,.1f}",
-                           "전월대비 증감": "{:+,.1f}", "증감률(%)": "{:+.1f}%"}, na_rep="-"))
-        st.dataframe(styled, width='stretch', hide_index=True)
+        total_row = {
+            "자산대분류": "합계",
+            m_prev: cmp[m_prev].sum(),
+            m_curr: cmp[m_curr].sum(),
+            "전월대비 증감": cmp["전월대비 증감"].sum(),
+            "증감률(%)": (cmp["전월대비 증감"].sum() / cmp[m_prev].sum() * 100) if cmp[m_prev].sum() != 0 else 0.0
+        }
+        tbl = pd.concat([tbl, pd.DataFrame([total_row])], ignore_index=True)
+        
+        st.markdown(comparison_table_to_html(tbl, m_prev, m_curr), unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
         g1, g2 = st.columns([1, 1])
