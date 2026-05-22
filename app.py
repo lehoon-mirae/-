@@ -17,14 +17,133 @@ import plotly.graph_objects as go
 from report_parser import (parse_report, date_from_filename,
                            MEASURE_COLS, PCT_COLS)
 
-st.set_page_config(page_title="자산운용부 일보 대시보드", page_icon="📊", layout="wide")
+st.set_page_config(page_title="자산운용일보", page_icon="📊", layout="wide")
 
-# 프리미엄 파이낸셜 컬러 셋
-POS, NEG, BRAND = "#10b981", "#ef4444", "#6366f1"
-PREMIUM_COLORS = ["#6366f1", "#10b981", "#3b82f6", "#ec4899", "#8b5cf6", "#f59e0b", "#ef4444"]
+# 미래에셋생명 프리미엄 브랜드 컬러 셋
+BRAND_NAVY = "#004B93"
+BRAND_ORANGE = "#EC6608"
+BRAND_BEIGE = "#FFF6EE"
+
+POS, NEG, BRAND = "#DC2626", "#2563EB", BRAND_NAVY
+PREMIUM_COLORS = ["#004B93", "#EC6608", "#0284C7", "#F97316", "#0EA5E9", "#3B82F6", "#F59E0B"]
 
 # ===================================================================
-# Premium CSS Injection for Glassmorphism & High-End Financial Vibe
+# Session State for Login Authentication
+# ===================================================================
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+
+# ===================================================================
+# Login Screen Gate
+# ===================================================================
+if not st.session_state["logged_in"]:
+    # Style and render login screen
+    st.markdown(
+        """
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+            
+            /* Global typography & background */
+            html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+                font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
+                background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%) !important;
+                color: #1E293B !important;
+            }
+            
+            /* Hide sidebar entirely on login page */
+            [data-testid="stSidebar"] {
+                display: none !important;
+            }
+            
+            /* Premium form design */
+            div[data-testid="stForm"] {
+                background: #FFFFFF !important;
+                border: 1px solid #E2E8F0 !important;
+                border-left: 6px solid #EC6608 !important;
+                border-radius: 16px !important;
+                padding: 40px !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+                margin-top: 50px;
+            }
+            
+            /* Form inputs styling */
+            div[data-testid="stForm"] input {
+                border-radius: 8px !important;
+                border-color: #E2E8F0 !important;
+            }
+            
+            /* Form submit button styling with brand colors & hover animation */
+            div[data-testid="stForm"] button[type="submit"] {
+                background-color: #004B93 !important;
+                color: #FFFFFF !important;
+                border: none !important;
+                font-weight: 700 !important;
+                padding: 12px 24px !important;
+                border-radius: 8px !important;
+                box-shadow: 0 4px 12px rgba(0, 75, 147, 0.15) !important;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            div[data-testid="stForm"] button[type="submit"]:hover {
+                background-color: #EC6608 !important;
+                box-shadow: 0 6px 18px rgba(236, 102, 8, 0.25) !important;
+                transform: translateY(-2px) !important;
+            }
+            div[data-testid="stForm"] button[type="submit"]:active {
+                transform: translateY(0) !important;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    col1, col2, col3 = st.columns([1, 1.6, 1])
+    with col2:
+        st.write("")
+        st.write("")
+        with st.form("login_form", clear_on_submit=False):
+            st.markdown(
+                """
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="color: #004B93; font-weight: 900; font-size: 1.0rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
+                        <span style="color: #EC6608; font-weight: 500; font-size: 0.9rem; border-left: 1px solid #E2E8F0; padding-left: 10px;">미래에셋생명</span>
+                    </div>
+                    <h2 style="color: #004B93; font-size: 1.9rem; font-weight: 800; margin: 0; letter-spacing: -0.02em;">📊 자산운용일보</h2>
+                    <p style="color: #64748B; font-size: 0.95rem; margin-top: 6px; font-weight: 500;">자산운용본부 인가 인원 전용 시스템</p>
+                    <div style="background-color: #FFF6EE; border: 1px solid #FDBA74; border-radius: 8px; padding: 12px; margin-top: 18px; color: #C2410C; font-weight: 600; font-size: 0.82rem; text-align: center; line-height: 1.4;">
+                        🔒 본 화면은 자산운용본부의 인가된 인원만 접속이 가능합니다.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+            username = st.text_input("👤 사용자 ID", placeholder="아이디를 입력하세요", key="login_username")
+            password = st.text_input("🔑 비밀번호", placeholder="비밀번호를 입력하세요", type="password", key="login_password")
+            
+            submit_button = st.form_submit_button("로그인", use_container_width=True)
+            
+            st.markdown(
+                """
+                <div style="text-align: center; margin-top: 15px;">
+                    <p style="font-size: 0.8rem; color: #94A3B8; margin: 0;">※ 테스트 계정: <b>admin</b> / <b>1234</b></p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+            if submit_button:
+                if username == "admin" and password == "1234":
+                    st.session_state["logged_in"] = True
+                    st.success("🎯 로그인 성공! 대시보드로 진입합니다.")
+                    st.rerun()
+                else:
+                    st.error("❌ 아이디 또는 비밀번호가 올바르지 않습니다.")
+                    
+    st.stop()
+
+# ===================================================================
+# Premium CSS Injection for Mirae Asset Light Design System
 # ===================================================================
 st.markdown(
     """
@@ -34,31 +153,32 @@ st.markdown(
         /* Global typography & background */
         html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
             font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
-            background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #070a13 100%) !important;
-            color: #e5e7eb !important;
+            background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%) !important;
+            color: #1E293B !important;
         }
         
         /* Sidebar styling */
         section[data-testid="stSidebar"] {
-            background-color: #080c14 !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            background-color: #FFFFFF !important;
+            border-right: 1px solid #E2E8F0 !important;
+        }
+        section[data-testid="stSidebar"] * {
+            color: #334155 !important;
         }
         
         /* Header Banner Card */
         .header-container {
-            background: linear-gradient(90deg, rgba(31, 41, 55, 0.4) 0%, rgba(17, 24, 39, 0.4) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(90deg, #FFF6EE 0%, #FFFFFF 100%);
+            border: 1px solid #FDBA74; /* Orange-tint border */
+            border-left: 6px solid #EC6608; /* Thick brand orange line */
             border-radius: 16px;
             padding: 24px 32px;
             margin-bottom: 28px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(236, 102, 8, 0.05);
         }
         
         .header-title {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #004B93 !important;
             font-size: 2.2rem;
             font-weight: 800;
             margin: 0;
@@ -66,36 +186,35 @@ st.markdown(
         }
         
         .header-subtitle {
-            color: #9ca3af;
+            color: #475569;
             margin-top: 6px;
             margin-bottom: 0;
             font-size: 0.95rem;
             font-weight: 500;
         }
         
-        /* Glassmorphic Metric Cards */
+        /* Premium Light Metric Cards with Warm Beige touches */
         .metric-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
             border-radius: 14px;
             padding: 20px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 12px;
         }
         
         .metric-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(99, 102, 241, 0.4);
-            box-shadow: 0 12px 25px 0 rgba(99, 102, 241, 0.15);
-            background: rgba(255, 255, 255, 0.05);
+            border-color: #EC6608;
+            box-shadow: 0 12px 25px rgba(236, 102, 8, 0.1);
+            background: #FFFBF7; /* Brand warm touch */
         }
         
         .metric-label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #9ca3af;
+            color: #64748B;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 8px;
@@ -104,7 +223,7 @@ st.markdown(
         .metric-value {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #ffffff;
+            color: #0F172A;
             font-family: 'Plus Jakarta Sans', sans-serif;
             letter-spacing: -0.02em;
         }
@@ -119,18 +238,18 @@ st.markdown(
         }
         
         .delta-up {
-            color: #34d399;
+            color: #DC2626; /* Crimson Red for increase */
         }
         
         .delta-down {
-            color: #f87171;
+            color: #2563EB; /* Blue for decrease */
         }
         
         /* Premium Tabs styling */
         button[data-baseweb="tab"] {
             background-color: transparent !important;
             border: none !important;
-            color: #9ca3af !important;
+            color: #64748B !important;
             font-weight: 600 !important;
             padding: 12px 24px !important;
             border-radius: 8px !important;
@@ -139,60 +258,61 @@ st.markdown(
         }
         
         button[data-baseweb="tab"]:hover {
-            color: #ffffff !important;
-            background: rgba(255, 255, 255, 0.05) !important;
+            color: #EC6608 !important;
+            background: rgba(236, 102, 8, 0.05) !important;
         }
         
         button[data-baseweb="tab"][aria-selected="true"] {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
+            background: #004B93 !important;
             color: #ffffff !important;
-            border: 1px solid rgba(99, 102, 241, 0.3) !important;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.12) !important;
+            border: 1px solid #004B93 !important;
+            box-shadow: 0 4px 15px rgba(0, 75, 147, 0.15) !important;
         }
         
-        /* Custom Premium Table with Sticky Headers */
+        /* Custom Premium Table with Sticky Headers for Light Mode */
         .premium-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
-            background: rgba(255, 255, 255, 0.01);
-            color: #d1d5db;
+            background: #FFFFFF;
+            color: #334155;
         }
         .premium-table th {
             position: sticky !important;
             top: 0 !important;
             z-index: 10 !important;
-            background-color: #0b0f19 !important; /* Perfect opaque dark background to cover scroll items */
-            box-shadow: inset 0 -2px 0 rgba(99, 102, 241, 0.4);
+            background-color: #004B93 !important; /* Brand Navy Header */
             color: #ffffff !important;
             font-weight: 600;
             text-align: center;
             padding: 11px 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             font-size: 0.85rem;
             white-space: nowrap;
+            box-shadow: inset 0 -2px 0 #EC6608; /* Brand Orange Bottom Border inside th */
         }
         .premium-table td {
             padding: 8px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid #E2E8F0;
             vertical-align: middle;
         }
         .premium-table tr:hover {
-            background-color: rgba(255, 255, 255, 0.04) !important;
+            background-color: #F8FAFC !important;
         }
         
         /* Divider color adjustment */
         hr {
-            border-color: rgba(255, 255, 255, 0.08) !important;
+            border-color: #E2E8F0 !important;
         }
         
         /* Chart containers styling */
         .chart-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
     </style>
     """,
@@ -203,7 +323,11 @@ st.markdown(
 st.markdown(
     """
     <div class="header-container">
-        <h1 class="header-title">📊 자산운용부 일보 대시보드</h1>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span style="color: #004B93; font-weight: 900; font-size: 1.1rem; letter-spacing: -0.03em;">MIRAE ASSET</span>
+            <span style="color: #EC6608; font-weight: 500; font-size: 1.0rem; border-left: 1px solid #E2E8F0; padding-left: 12px;">미래에셋생명</span>
+        </div>
+        <h1 class="header-title">📊 자산운용일보</h1>
         <p class="header-subtitle">일보 양식 기준 · 자산구분 대분류별 전월대비 손익 비교 (단위: 억원)</p>
     </div>
     """,
@@ -243,6 +367,39 @@ else:
     if reports:
         st.sidebar.info("샘플 일보를 표시 중입니다.\n실제 파일을 올리면 교체됩니다.")
 
+# ===================================================================
+# Sidebar Logout Button & Custom Styling
+# ===================================================================
+st.sidebar.markdown("---")
+st.sidebar.markdown(
+    """
+    <style>
+        /* Sidebar button custom styling */
+        section[data-testid="stSidebar"] button {
+            background-color: transparent !important;
+            border: 1px solid #E2E8F0 !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            transition: all 0.2s ease !important;
+        }
+        section[data-testid="stSidebar"] button:hover {
+            color: #DC2626 !important;
+            border-color: #FCA5A5 !important;
+            background-color: #FEF2F2 !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08) !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+if st.sidebar.button("🔓 로그아웃", use_container_width=True):
+    st.session_state["logged_in"] = False
+    st.success("로그아웃 되었습니다.")
+    st.rerun()
+
 if not reports:
     st.warning("왼쪽 사이드바에서 일보 엑셀 파일을 업로드하세요. "
                "파일명은 '일보_YYYYMMDD.xlsx' 형식을 권장합니다.")
@@ -281,32 +438,32 @@ def premium_metric_card(label, value, delta=None, delta_type="up"):
 
 
 def apply_premium_chart_theme(fig):
-    """Plotly 차트에 프리미엄 파이낸셜 디자인 테마 입히기."""
+    """Plotly 차트에 프리미엄 파이낸셜 디자인 테마 입히기 (미래에셋 라이트 모드)"""
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Plus Jakarta Sans, Noto Sans KR, sans-serif", color="#e5e7eb"),
-        title_font=dict(size=16, color="#ffffff", family="Plus Jakarta Sans, Noto Sans KR, sans-serif"),
+        font=dict(family="Plus Jakarta Sans, Noto Sans KR, sans-serif", color="#334155"),
+        title_font=dict(size=16, color="#0F172A", family="Plus Jakarta Sans, Noto Sans KR, sans-serif"),
         legend=dict(
-            bgcolor="rgba(0,0,0,0)",
-            bordercolor="rgba(255,255,255,0.05)",
-            font=dict(color="#9ca3af")
+            bgcolor="rgba(255,255,255,0.8)",
+            bordercolor="#E2E8F0",
+            font=dict(color="#475569")
         ),
     )
     if hasattr(fig, "layout") and fig.layout:
         if "xaxis" in fig.layout and fig.layout.xaxis:
             fig.update_xaxes(
-                gridcolor="rgba(255,255,255,0.06)",
-                linecolor="rgba(255,255,255,0.1)",
-                tickfont=dict(color="#9ca3af"),
-                title_font=dict(color="#d1d5db")
+                gridcolor="#F1F5F9",
+                linecolor="#E2E8F0",
+                tickfont=dict(color="#64748B"),
+                title_font=dict(color="#334155")
             )
         if "yaxis" in fig.layout and fig.layout.yaxis:
             fig.update_yaxes(
-                gridcolor="rgba(255,255,255,0.06)",
-                linecolor="rgba(255,255,255,0.1)",
-                tickfont=dict(color="#9ca3af"),
-                title_font=dict(color="#d1d5db")
+                gridcolor="#F1F5F9",
+                linecolor="#E2E8F0",
+                tickfont=dict(color="#64748B"),
+                title_font=dict(color="#334155")
             )
     return fig
 
@@ -357,17 +514,17 @@ def df_to_merged_html(df):
     def get_row_style(row):
         t = row.get("행구분", "")
         if t == "총합계":
-            return "background-color: rgba(99, 102, 241, 0.28); color: #ffffff; font-weight: 700; border-top: 2px solid rgba(99, 102, 241, 0.5); border-bottom: 2px solid rgba(99, 102, 241, 0.5);"
+            return "background-color: #FFEEDB; color: #0F172A; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
         if t == "대분류합계":
-            return "background-color: rgba(59, 130, 246, 0.2); color: #ffffff; font-weight: 600;"
+            return "background-color: #E0F2FE; color: #004B93; font-weight: 600;"
         if t in ("중분류소계", "소계"):
-            return "background-color: rgba(255, 255, 255, 0.05); color: #e5e7eb;"
-        return "color: #9ca3af;"
+            return "background-color: #F1F5F9; color: #334155;"
+        return "color: #475569;"
 
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
     
     # 스크롤 영역 지정을 위한 wrapper div 추가 및 테이블 마진 제거
-    html = '<div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
+    html = '<div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
     
     # 헤더 생성
     visible_cols = [col for col in df.columns if col not in ("행구분", "자산대분류")]
@@ -428,6 +585,16 @@ tab1, tab2, tab3 = st.tabs(["📄 원본 일보", "📊 요약 대시보드", "�
 
 # ---- 탭 1: 원본 일보 그대로 (세로 셀 병합 HTML 렌더링 + 다차원 계층 필터) ----
 with tab1:
+    # 보안 안내 문구 추가
+    st.markdown(
+        """
+        <div style="background-color: #FFF6EE; border: 1px solid #FDBA74; border-left: 5px solid #EC6608; border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; color: #C2410C; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+            <span>🔒 본 화면은 자산운용본부의 인가된 인원만 접속이 가능합니다.</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
     c1, c2, c3 = st.columns([1, 1.2, 1.8])
     sel_date = c1.selectbox("기준일", dates, index=len(dates) - 1,
                             format_func=lambda d: d.strftime("%Y-%m-%d"))
