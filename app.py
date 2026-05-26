@@ -563,8 +563,27 @@ def df_to_merged_html(df):
     
     # 헤더 생성
     visible_cols = [col for col in df.columns if col not in ("행구분", "자산대분류")]
+    sticky_cols = {
+        "구분": {"left": "0px", "width": "80px"},
+        "자산_대": {"left": "80px", "width": "100px"},
+        "자산_중": {"left": "180px", "width": "120px"},
+        "자산_소": {"left": "300px", "width": "130px"}
+    }
+    
     for col in visible_cols:
-        html += f'<th>{col}</th>'
+        if col in sticky_cols:
+            left_val = sticky_cols[col]["left"]
+            width_val = sticky_cols[col]["width"]
+            shadow = "4px 0 8px rgba(0,0,0,0.12)" if col == "자산_소" else "2px 0 4px rgba(0,0,0,0.06)"
+            html += (
+                f'<th style="position: sticky !important; left: {left_val} !important; '
+                f'top: 0 !important; z-index: 15 !important; '
+                f'min-width: {width_val} !important; max-width: {width_val} !important; '
+                f'width: {width_val} !important; background-color: #004B93 !important; '
+                f'box-shadow: inset 0 -2px 0 #EC6608, {shadow};">{col}</th>'
+            )
+        else:
+            html += f'<th>{col}</th>'
     html += '</tr></thead><tbody>'
     
     # 행 본문 생성
@@ -605,6 +624,20 @@ def df_to_merged_html(df):
                     cell_style = f"color: {POS} !important; font-weight: 600;"
                 elif val < 0:
                     cell_style = f"color: {NEG} !important; font-weight: 600;"
+            
+            # 자산 소카테고리까지 고정(Sticky Left) 적용
+            if col in sticky_cols:
+                left_val = sticky_cols[col]["left"]
+                width_val = sticky_cols[col]["width"]
+                shadow = "4px 0 8px rgba(0,0,0,0.06)" if col == "자산_소" else "2px 0 4px rgba(0,0,0,0.03)"
+                
+                sticky_style = (
+                    f"position: sticky !important; left: {left_val} !important; "
+                    f"z-index: 5 !important; background-color: inherit !important; "
+                    f"min-width: {width_val} !important; max-width: {width_val} !important; "
+                    f"width: {width_val} !important; box-shadow: {shadow};"
+                )
+                cell_style += f" {sticky_style}"
             
             html += f'<td{rowspan_attr} style="{align_style} {cell_style}">{val_str}</td>'
     html += '</tbody></table></div>'
