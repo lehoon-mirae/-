@@ -307,7 +307,10 @@ st.markdown(
         /* Custom Premium Table with Sticky Headers for Light Mode */
         .premium-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-top: 1px solid #E2E8F0 !important;
+            border-left: 1px solid #E2E8F0 !important;
             font-size: 0.85rem;
             background: #FFFFFF;
             color: #334155;
@@ -321,15 +324,18 @@ st.markdown(
             font-weight: 600;
             text-align: center;
             padding: 11px 14px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
             font-size: 0.85rem;
             white-space: nowrap;
             box-shadow: inset 0 -2px 0 #EC6608; /* Brand Orange Bottom Border inside th */
         }
         .premium-table td {
             padding: 8px 12px;
-            border: 1px solid #E2E8F0;
+            border-right: 1px solid #E2E8F0 !important;
+            border-bottom: 1px solid #E2E8F0 !important;
             vertical-align: middle;
+            white-space: nowrap !important; /* 글자가 절대 줄바꿈되거나 잘리지 않도록 설정 */
         }
         .premium-table tr:hover {
             background-color: #F8FAFC !important;
@@ -348,6 +354,33 @@ st.markdown(
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        }
+        
+        /* PDF 인쇄 시 불필요한 요소 자동 은폐 및 여백 최적화 */
+        @media print {
+            [data-testid="stSidebar"], [data-testid="stHeader"], .no-print, iframe {
+                display: none !important;
+            }
+            html, body, [data-testid="stAppViewContainer"], .main, .block-container {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .premium-table {
+                box-shadow: none !important;
+                border: 1px solid #000000 !important;
+            }
+            .premium-table th {
+                background-color: #004B93 !important;
+                color: #FFFFFF !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .premium-table td {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
     """,
@@ -559,15 +592,15 @@ def df_to_merged_html(df):
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
     
     # 스크롤 영역 지정을 위한 wrapper div 추가 및 테이블 마진 제거
-    html = '<div style="max-height: 520px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
+    html = '<div style="max-height: 780px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
     
     # 헤더 생성
     visible_cols = [col for col in df.columns if col not in ("행구분", "자산대분류")]
     sticky_cols = {
-        "구분": {"left": "0px", "width": "80px"},
-        "자산_대": {"left": "80px", "width": "100px"},
-        "자산_중": {"left": "180px", "width": "120px"},
-        "자산_소": {"left": "300px", "width": "130px"}
+        "구분": {"left": "0px", "width": "60px"},
+        "자산_대": {"left": "60px", "width": "85px"},
+        "자산_중": {"left": "145px", "width": "110px"},
+        "자산_소": {"left": "255px", "width": "125px"}
     }
     
     for col in visible_cols:
@@ -580,7 +613,10 @@ def df_to_merged_html(df):
                 f'top: 0 !important; z-index: 15 !important; '
                 f'min-width: {width_val} !important; max-width: {width_val} !important; '
                 f'width: {width_val} !important; background-color: #004B93 !important; '
-                f'box-shadow: inset 0 -2px 0 #EC6608, {shadow};">{col}</th>'
+                f'border-right: 1px solid rgba(255, 255, 255, 0.15) !important; '
+                f'box-shadow: inset 0 -2px 0 #EC6608, {shadow}; '
+                f'white-space: normal !important; word-break: break-all !important; '
+                f'line-height: 1.2 !important; padding: 6px 4px !important;">{col}</th>'
             )
         else:
             html += f'<th>{col}</th>'
@@ -631,11 +667,25 @@ def df_to_merged_html(df):
                 width_val = sticky_cols[col]["width"]
                 shadow = "4px 0 8px rgba(0,0,0,0.06)" if col == "자산_소" else "2px 0 4px rgba(0,0,0,0.03)"
                 
+                # 행구분에 따른 명확한 고정 셀 배경색 매핑 (상속 버그 방지 및 강제 불투명 채우기)
+                row_type = row.get("행구분", "")
+                if row_type == "총합계":
+                    bg_col = "#FFF0E0"
+                elif row_type == "대분류합계":
+                    bg_col = "#FFF8F2"
+                elif row_type in ("중분류소계", "소계"):
+                    bg_col = "#FAF6F0"
+                else:
+                    bg_col = "#FFFFFF"
+                
                 sticky_style = (
                     f"position: sticky !important; left: {left_val} !important; "
-                    f"z-index: 5 !important; background-color: inherit !important; "
+                    f"z-index: 5 !important; background-color: {bg_col} !important; "
                     f"min-width: {width_val} !important; max-width: {width_val} !important; "
-                    f"width: {width_val} !important; box-shadow: {shadow};"
+                    f"width: {width_val} !important; box-shadow: {shadow}; "
+                    f"border-right: 1px solid #E2E8F0 !important; "
+                    f"white-space: normal !important; word-break: break-all !important; "
+                    f"line-height: 1.25 !important; padding: 6px 8px !important;"
                 )
                 cell_style += f" {sticky_style}"
             
@@ -718,7 +768,7 @@ with tab1:
         unsafe_allow_html=True
     )
     
-    c1, c2, c3 = st.columns([1, 1.2, 1.8])
+    c1, c2, c3, c4 = st.columns([1, 1.2, 1.3, 1.5])
     sel_date = c1.selectbox("기준일", dates, index=len(dates) - 1,
                             format_func=lambda d: d.strftime("%Y-%m-%d"))
     df = reports[sel_date]
@@ -739,6 +789,35 @@ with tab1:
             view = df
         else:
             view = df[df[filter_col] == sel_val]
+            
+    with c4:
+        st.write("")
+        import streamlit.components.v1 as components
+        components.html(
+            """
+            <button onclick="window.parent.print()" style="
+                background-color: #004B93; 
+                color: white; 
+                border: none; 
+                padding: 10px 20px; 
+                border-radius: 8px; 
+                font-weight: 700; 
+                cursor: pointer;
+                width: 100%;
+                height: 42px;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0, 75, 147, 0.15);
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            " onmouseover="this.style.backgroundColor='#EC6608'" onmouseout="this.style.backgroundColor='#004B93'">
+                📄 PDF 출력 / 인쇄
+            </button>
+            """,
+            height=45
+        )
 
     st.caption(f"{sel_date:%Y-%m-%d} 기준 · {len(view):,}개 행 "
                f"(명세 {int((view['행구분']=='명세').sum())} · "
