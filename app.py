@@ -800,7 +800,7 @@ def df_to_merged_html(df):
                 
                 document.addEventListener('mousemove', onMouseMove);
                 document.addEventListener('mouseup', onMouseUp);
-                ev.preventDefault();
+                e.preventDefault();
             });
         });
     });
