@@ -718,12 +718,12 @@ def df_to_merged_html(df):
         const cols = table.querySelectorAll('col');
         
         ths.forEach((th, i) => {
-            // Ensure th has relative positioning for absolute resizer placement
+            /* Ensure th has relative positioning for absolute resizer placement */
             if (window.getComputedStyle(th).position === 'static') {
                 th.style.position = 'relative';
             }
             
-            // Create drag handle element
+            /* Create drag handle element */
             const resizer = document.createElement('div');
             resizer.style.position = 'absolute';
             resizer.style.top = '0';
@@ -735,7 +735,7 @@ def df_to_merged_html(df):
             resizer.style.zIndex = '30';
             resizer.style.backgroundColor = 'transparent';
             
-            // Premium orange indicator on hover
+            /* Premium orange indicator on hover */
             resizer.addEventListener('mouseover', () => {
                 resizer.style.backgroundColor = '#EC6608';
                 resizer.style.width = '4px';
@@ -760,19 +760,19 @@ def df_to_merged_html(df):
                     const diff = ev.clientX - startX;
                     const newWidth = Math.max(30, startWidth + diff);
                     
-                    // Update corresponding col element width
+                    /* Update corresponding col element width */
                     if (cols[i]) {
                         cols[i].style.width = newWidth + 'px';
                         cols[i].style.minWidth = newWidth + 'px';
                         cols[i].style.maxWidth = newWidth + 'px';
                     }
                     
-                    // Update th width style to override any inline max/min width styles
+                    /* Update th width style to override any inline max/min width styles */
                     th.style.width = newWidth + 'px';
                     th.style.minWidth = newWidth + 'px';
                     th.style.maxWidth = newWidth + 'px';
                     
-                    // If it is a sticky column (indices 0, 1, 2, 3), recalculate left offsets for subsequent sticky columns
+                    /* If it is a sticky column (indices 0, 1, 2, 3), recalculate left offsets */
                     if (i < 4) {
                         let currentLeft = 0;
                         for (let idx = 0; idx < 4; idx++) {
@@ -780,7 +780,7 @@ def df_to_merged_html(df):
                                 const stickyTh = ths[idx];
                                 stickyTh.style.left = currentLeft + 'px';
                                 
-                                // Update all cells in this sticky column
+                                /* Update all cells in this sticky column */
                                 const cells = table.querySelectorAll('.sticky-col-' + idx);
                                 cells.forEach(cell => {
                                     cell.style.left = currentLeft + 'px';
@@ -804,8 +804,7 @@ def df_to_merged_html(df):
             });
         });
     });
-})()
-" style="display:none;">
+})()" style="display:none;">
 """
     html += '</tbody></table>'
     html += js_code
