@@ -754,7 +754,7 @@ def comparison_table_to_html(df, m_prev, m_curr):
 # ===================================================================
 # 3. 탭 구성
 # ===================================================================
-tab1, tab2, tab3 = st.tabs(["📄 원본 일보", "📊 요약 대시보드", "📈 전월대비 비교"])
+tab1, tab2, tab3 = st.tabs(["📄 원본 일보", "📊 요약 대시보드", "📈 월별 추이 및 비교"])
 
 # ---- 탭 1: 원본 일보 그대로 (세로 셀 병합 HTML 렌더링 + 다차원 계층 필터) ----
 with tab1:
@@ -927,23 +927,40 @@ with tab3:
             cmp["증감률(%)"] = (cmp["전월대비 증감"] /
                               cmp[m_prev].abs().replace(0, pd.NA) * 100)
 
-        t = cmp.sum(numeric_only=True)
+        # 3개월 월별 손익추이 값 연산
+        idx_curr = cols.index(m_curr)
         
-        # 프리미엄 HTML 메트릭 카드 배치 (억원 표기)
+        # 당월 값
+        val_curr = pivot[m_curr].sum()
+        
+        # 직전월 값
+        if idx_curr >= 1:
+            m_prev_val = cols[idx_curr - 1]
+            val_prev = pivot[m_prev_val].sum()
+            label_prev = f"직전월 ({m_prev_val})"
+            val_prev_str = f"{val_prev:,.1f}"
+        else:
+            val_prev_str = "-"
+            label_prev = "직전월 (데이터 없음)"
+            
+        # 전전월 값
+        if idx_curr >= 2:
+            m_prev2_val = cols[idx_curr - 2]
+            val_prev2 = pivot[m_prev2_val].sum()
+            label_prev2 = f"전전월 ({m_prev2_val})"
+            val_prev2_str = f"{val_prev2:,.1f}"
+        else:
+            val_prev2_str = "-"
+            label_prev2 = "전전월 (데이터 없음)"
+
+        # 프리미엄 HTML 메트릭 카드 배치 (억원 표기) - 증감/증감률 삭제 및 3개월 단위 월별 추이로 대체
         kk1, kk2, kk3 = st.columns(3)
         with kk1:
-            premium_metric_card(f"{m_curr} 합계 (억원)", f"{cmp[m_curr].sum():,.1f}")
+            premium_metric_card(f"당월 ({m_curr}, 억원)", f"{val_curr:,.1f}")
         with kk2:
-            val = t['전월대비 증감']
-            delta_str = f"{abs(val):,.1f}"
-            delta_type = "up" if val >= 0 else "down"
-            premium_metric_card("전월대비 증감 (억원)", f"{val:,.1f}", delta=delta_str, delta_type=delta_type)
+            premium_metric_card(f"{label_prev} (억원)", val_prev_str)
         with kk3:
-            best = cmp["전월대비 증감"].idxmax()
-            best_val = cmp.loc[best,'전월대비 증감']
-            delta_str = f"{abs(best_val):,.1f}"
-            delta_type = "up" if best_val >= 0 else "down"
-            premium_metric_card(f"증가 1위 · {best} (억원)", f"{best_val:,.1f}", delta=delta_str, delta_type=delta_type)
+            premium_metric_card(f"{label_prev2} (억원)", val_prev2_str)
 
         st.divider()
         st.subheader(f"자산구분 대분류별 {metric} — {m_prev} → {m_curr} (단위: 억원)")
@@ -981,9 +998,18 @@ with tab3:
             st.markdown("##### 기준일별 추이")
             trend = pivot.T.reset_index().melt(id_vars="index",
                         var_name="자산대분류", value_name=metric).rename(columns={"index": "기준일"})
-            fig = px.line(trend, x="기준일", y=metric, color="자산대분류", color_discrete_sequence=PREMIUM_COLORS, markers=True)
-            fig.update_layout(height=420, margin=dict(l=10, r=10, t=10, b=10),
-                              legend=dict(font=dict(size=10)))
+            # 누적 세로 막대형 BAR 차트로 변경 및 마우스 오버(Hover) 시 세부 데이터 연합 노출
+            fig = px.bar(trend, x="기준일", y=metric, color="자산대분류", 
+                         color_discrete_sequence=PREMIUM_COLORS, barmode="stack")
+            fig.update_layout(
+                height=420, 
+                margin=dict(l=10, r=10, t=10, b=10),
+                legend=dict(font=dict(size=10)),
+                hovermode="x unified"
+            )
+            fig.update_traces(
+                hovertemplate="%{y:,.1f} 억원<extra></extra>"
+            )
             apply_premium_chart_theme(fig)
             st.plotly_chart(fig, width='stretch')
             st.markdown('</div>', unsafe_allow_html=True)
