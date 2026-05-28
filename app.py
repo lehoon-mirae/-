@@ -918,8 +918,8 @@ with tab3:
         cols = list(pivot.columns)
 
         c1, c2 = st.columns(2)
-        m_curr = c1.selectbox("기준일", cols, index=len(cols) - 1)
-        m_prev = c2.selectbox("비교일", cols, index=len(cols) - 2)
+        m_curr = c1.selectbox("기준일", cols, index=len(cols) - 1, key="compare_base_date")
+        m_prev = c2.selectbox("비교일", cols, index=len(cols) - 2, key="compare_target_date")
 
         if m_prev == m_curr:
             cmp = pd.DataFrame(index=pivot.index)
