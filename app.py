@@ -592,7 +592,7 @@ def df_to_merged_html(df):
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
     
     # 스크롤 영역 지정을 위한 wrapper div 추가 및 테이블 마진 제거
-    html = '<div style="width: 100% !important; max-width: 100% !important; max-height: 780px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06); display: block !important;"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
+    html = '<div style="width: 100% !important; max-width: 100% !important; max-height: 780px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06); display: block !important;"><table class="premium-table" style="margin:0; border:none;">'
     
     # 헤더 생성
     visible_cols = [col for col in df.columns if col not in ("행구분", "자산대분류")]
@@ -603,13 +603,23 @@ def df_to_merged_html(df):
         "자산_소": {"left": "255px", "width": "125px"}
     }
     
+    # colgroup 추가
+    html += '<colgroup>'
     for col in visible_cols:
+        if col in sticky_cols:
+            w = sticky_cols[col]["width"]
+            html += f'<col style="width: {w}; min-width: {w}; max-width: {w};">'
+        else:
+            html += '<col style="width: auto;">'
+    html += '</colgroup><thead><tr>'
+    
+    for idx, col in enumerate(visible_cols):
         if col in sticky_cols:
             left_val = sticky_cols[col]["left"]
             width_val = sticky_cols[col]["width"]
             shadow = "4px 0 8px rgba(0,0,0,0.12)" if col == "자산_소" else "2px 0 4px rgba(0,0,0,0.06)"
             html += (
-                f'<th style="position: sticky !important; left: {left_val} !important; '
+                f'<th class="sticky-col-{idx}" style="position: sticky !important; left: {left_val} !important; '
                 f'top: 0 !important; z-index: 15 !important; '
                 f'min-width: {width_val} !important; max-width: {width_val} !important; '
                 f'width: {width_val} !important; background-color: #004B93 !important; '
@@ -663,6 +673,8 @@ def df_to_merged_html(df):
             
             # 자산 소카테고리까지 고정(Sticky Left) 적용
             if col in sticky_cols:
+                idx = visible_cols.index(col)
+                class_attr = f' class="sticky-col-{idx}"'
                 left_val = sticky_cols[col]["left"]
                 width_val = sticky_cols[col]["width"]
                 shadow = "4px 0 8px rgba(0,0,0,0.06)" if col == "자산_소" else "2px 0 4px rgba(0,0,0,0.03)"
@@ -688,9 +700,116 @@ def df_to_merged_html(df):
                     f"line-height: 1.25 !important; padding: 6px 8px !important;"
                 )
                 cell_style += f" {sticky_style}"
+            else:
+                class_attr = ''
             
-            html += f'<td{rowspan_attr} style="{align_style} {cell_style}">{val_str}</td>'
-    html += '</tbody></table></div>'
+            html += f'<td{rowspan_attr}{class_attr} style="{align_style} {cell_style}">{val_str}</td>'
+    
+    # JavaScript column resizer injection via hidden image onerror hack
+    js_code = """
+<img src="x" onerror="
+(function(){
+    const tables = document.querySelectorAll('table.premium-table');
+    tables.forEach(table => {
+        if (table.dataset.resizable) return;
+        table.dataset.resizable = 'true';
+        
+        const ths = table.querySelectorAll('th');
+        const cols = table.querySelectorAll('col');
+        
+        ths.forEach((th, i) => {
+            // Ensure th has relative positioning for absolute resizer placement
+            if (window.getComputedStyle(th).position === 'static') {
+                th.style.position = 'relative';
+            }
+            
+            // Create drag handle element
+            const resizer = document.createElement('div');
+            resizer.style.position = 'absolute';
+            resizer.style.top = '0';
+            resizer.style.right = '0';
+            resizer.style.width = '6px';
+            resizer.style.height = '100%';
+            resizer.style.cursor = 'col-resize';
+            resizer.style.userSelect = 'none';
+            resizer.style.zIndex = '30';
+            resizer.style.backgroundColor = 'transparent';
+            
+            // Premium orange indicator on hover
+            resizer.addEventListener('mouseover', () => {
+                resizer.style.backgroundColor = '#EC6608';
+                resizer.style.width = '4px';
+            });
+            resizer.addEventListener('mouseout', () => {
+                resizer.style.backgroundColor = 'transparent';
+                resizer.style.width = '6px';
+            });
+            
+            th.appendChild(resizer);
+            
+            let startX, startWidth;
+            
+            resizer.addEventListener('mousedown', e => {
+                startX = e.clientX;
+                startWidth = th.offsetWidth;
+                
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+                
+                const onMouseMove = ev => {
+                    const diff = ev.clientX - startX;
+                    const newWidth = Math.max(30, startWidth + diff);
+                    
+                    // Update corresponding col element width
+                    if (cols[i]) {
+                        cols[i].style.width = newWidth + 'px';
+                        cols[i].style.minWidth = newWidth + 'px';
+                        cols[i].style.maxWidth = newWidth + 'px';
+                    }
+                    
+                    // Update th width style to override any inline max/min width styles
+                    th.style.width = newWidth + 'px';
+                    th.style.minWidth = newWidth + 'px';
+                    th.style.maxWidth = newWidth + 'px';
+                    
+                    // If it is a sticky column (indices 0, 1, 2, 3), recalculate left offsets for subsequent sticky columns
+                    if (i < 4) {
+                        let currentLeft = 0;
+                        for (let idx = 0; idx < 4; idx++) {
+                            if (idx < ths.length) {
+                                const stickyTh = ths[idx];
+                                stickyTh.style.left = currentLeft + 'px';
+                                
+                                // Update all cells in this sticky column
+                                const cells = table.querySelectorAll('.sticky-col-' + idx);
+                                cells.forEach(cell => {
+                                    cell.style.left = currentLeft + 'px';
+                                });
+                                currentLeft += stickyTh.offsetWidth;
+                            }
+                        }
+                    }
+                };
+                
+                const onMouseUp = () => {
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+                ev.preventDefault();
+            });
+        });
+    });
+})()
+" style="display:none;">
+"""
+    html += '</tbody></table>'
+    html += js_code
+    html += '</div>'
     return html
 
 
