@@ -330,6 +330,8 @@ st.markdown(
             font-size: 0.85rem;
             white-space: nowrap;
             box-shadow: inset 0 -2px 0 #EC6608; /* Brand Orange Bottom Border inside th */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
         .premium-table td {
             padding: 8px 12px;
@@ -337,6 +339,8 @@ st.markdown(
             border-bottom: 1px solid #E2E8F0 !important;
             vertical-align: middle;
             white-space: nowrap !important; /* 글자가 절대 줄바꿈되거나 잘리지 않도록 설정 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
         .premium-table tr:hover {
             background-color: #F8FAFC !important;
@@ -583,11 +587,11 @@ def df_to_merged_html(df):
     def get_row_style(row):
         t = row.get("행구분", "")
         if t == "총합계":
-            return "background-color: #FFE4D0 !important; color: #C2410C !important; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
+            return "background-color: #FDF2E9 !important; color: #C2410C !important; font-weight: 800; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
         if t == "대분류합계":
-            return "background-color: #FFF0DF !important; color: #004B93 !important; font-weight: 700; border-bottom: 1px solid #FDE8D0;"
+            return "background-color: #EBF3FC !important; color: #004B93 !important; font-weight: 700; border-bottom: 1.5px solid #004B93;"
         if t in ("중분류소계", "소계"):
-            return "background-color: #F5EFE6 !important; color: #1E293B !important; font-weight: 600; border-bottom: 1px solid #E2E8F0;"
+            return "background-color: #F4EFE6 !important; color: #1E293B !important; font-weight: 600; border-bottom: 1px solid #D5CFC6;"
         return "background-color: #FFFFFF !important; color: #475569 !important;"
 
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
@@ -683,11 +687,11 @@ def df_to_merged_html(df):
                 # 행구분에 따른 명확한 고정 셀 배경색 매핑 (상속 버그 방지 및 강제 불투명 채우기)
                 row_type = row.get("행구분", "")
                 if row_type == "총합계":
-                    bg_col = "#FFE4D0"
+                    bg_col = "#FDF2E9"
                 elif row_type == "대분류합계":
-                    bg_col = "#FFF0DF"
+                    bg_col = "#EBF3FC"
                 elif row_type in ("중분류소계", "소계"):
-                    bg_col = "#F5EFE6"
+                    bg_col = "#F4EFE6"
                 else:
                     bg_col = "#FFFFFF"
                 
@@ -707,7 +711,7 @@ def df_to_merged_html(df):
             html += f'<td{rowspan_attr}{class_attr} style="{align_style} {cell_style}">{val_str}</td>'
     
     # JavaScript column resizer injection via hidden image onerror hack
-    js_code = """<img src="x" onerror="(function(){const tables=document.querySelectorAll('table.premium-table');tables.forEach(table=>{if(table.dataset.resizable)return;table.dataset.resizable='true';table.style.position='relative';const ths=table.querySelectorAll('th');const cols=table.querySelectorAll('col');ths.forEach((th,i)=>{if(window.getComputedStyle(th).position==='static'){th.style.position='relative';}const resizer=document.createElement('div');resizer.style.position='absolute';resizer.style.top='0';resizer.style.right='0';resizer.style.width='6px';resizer.style.height='100%';resizer.style.cursor='col-resize';resizer.style.userSelect='none';resizer.style.zIndex='30';resizer.style.backgroundColor='transparent';resizer.addEventListener('mouseover',()=>{resizer.style.backgroundColor='#EC6608';resizer.style.width='4px';});resizer.addEventListener('mouseout',()=>{resizer.style.backgroundColor='transparent';resizer.style.width='6px';});th.appendChild(resizer);let startX,startWidth;resizer.addEventListener('mousedown',e=>{startX=e.clientX;startWidth=th.offsetWidth;document.body.style.cursor='col-resize';document.body.style.userSelect='none';const onMouseMove=ev=>{const diff=ev.clientX-startX;const newWidth=Math.max(30,startWidth+diff);if(cols[i]){cols[i].style.width=newWidth+'px';cols[i].style.minWidth=newWidth+'px';cols[i].style.maxWidth=newWidth+'px';}th.style.width=newWidth+'px';th.style.minWidth=newWidth+'px';th.style.maxWidth=newWidth+'px';if(i<4){let currentLeft=0;for(let idx=0;idx<4;idx++){if(idx<ths.length){const stickyTh=ths[idx];stickyTh.style.left=currentLeft+'px';const cells=table.querySelectorAll('.sticky-col-'+idx);cells.forEach(cell=>{cell.style.left=currentLeft+'px'});currentLeft+=stickyTh.offsetWidth;}}}};const onMouseUp=()=>{document.body.style.cursor='';document.body.style.userSelect='';document.removeEventListener('mousemove',onMouseMove);document.removeEventListener('mouseup',onMouseUp);};document.addEventListener('mousemove',onMouseMove);document.addEventListener('mouseup',onMouseUp);e.preventDefault();});});});});})()" style="display:none;">"""
+    js_code = """<img src="x" onerror="(function(){const tables=document.querySelectorAll('table.premium-table');tables.forEach(table=>{if(table.dataset.resizable)return;table.dataset.resizable='true';table.style.position='relative';const ths=table.querySelectorAll('th');const cols=table.querySelectorAll('col');ths.forEach((th,i)=>{if(window.getComputedStyle(th).position==='static'){th.style.position='relative';}const resizer=document.createElement('div');resizer.style.position='absolute';resizer.style.top='0';resizer.style.right='0';resizer.style.width='6px';resizer.style.height='100%';resizer.style.cursor='col-resize';resizer.style.userSelect='none';resizer.style.zIndex='30';resizer.style.backgroundColor='transparent';resizer.addEventListener('mouseover',()=>{resizer.style.backgroundColor='#EC6608';resizer.style.width='4px';});resizer.addEventListener('mouseout',()=>{resizer.style.backgroundColor='transparent';resizer.style.width='6px';});th.appendChild(resizer);resizer.addEventListener('mousedown',e=>{const startX=e.clientX;const startWidths=[];for(let idx=0;idx<4;idx++){startWidths.push(ths[idx]?ths[idx].offsetWidth:0);}document.body.style.cursor='col-resize';document.body.style.userSelect='none';const onMouseMove=ev=>{const diff=ev.clientX-startX;const newWidth=Math.max(30,startWidths[i]+diff);if(cols[i]){cols[i].style.width=newWidth+'px';cols[i].style.minWidth=newWidth+'px';cols[i].style.maxWidth=newWidth+'px';}th.style.width=newWidth+'px';th.style.minWidth=newWidth+'px';th.style.maxWidth=newWidth+'px';if(i<4){const cells=table.querySelectorAll('.sticky-col-'+i);cells.forEach(cell=>{cell.style.width=newWidth+'px';cell.style.minWidth=newWidth+'px';cell.style.maxWidth=newWidth+'px'});}let currentLeft=0;for(let idx=0;idx<4;idx++){if(idx<ths.length){const w=(idx===i)?newWidth:startWidths[idx];const stickyTh=ths[idx];stickyTh.style.left=currentLeft+'px';const cells=table.querySelectorAll('.sticky-col-'+idx);cells.forEach(cell=>{cell.style.left=currentLeft+'px'});currentLeft+=w;}}};const onMouseUp=()=>{document.body.style.cursor='';document.body.style.userSelect='';document.removeEventListener('mousemove',onMouseMove);document.removeEventListener('mouseup',onMouseUp);};document.addEventListener('mousemove',onMouseMove);document.addEventListener('mouseup',onMouseUp);e.preventDefault();});});});})()" style="display:none;">"""
     html += '</tbody></table>'
     html += js_code
     html += '</div>'
