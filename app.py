@@ -904,8 +904,13 @@ with tab3:
         st.info("전월대비 비교를 하려면 기준일이 다른 일보 2개 이상이 필요합니다. "
                 "사이드바에서 여러 파일을 함께 올려 주세요.")
     else:
-        metric = st.selectbox("비교 지표", MEASURE_COLS,
-                              index=MEASURE_COLS.index("당기손익_당월"))
+        trend_metrics = ["당기손익_당월", "BS자본조정_당월"]
+        metric = st.selectbox(
+            "비교 지표", 
+            trend_metrics,
+            index=0,
+            format_func=lambda x: "당기손익 (당월)" if x == "당기손익_당월" else "BS자본조정 (당월)"
+        )
 
         # 자산대분류 × 기준일 피벗
         series = {d.strftime("%Y-%m-%d"): agg_by_asset(reports[d], metric) for d in dates}
