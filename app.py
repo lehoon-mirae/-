@@ -1008,7 +1008,7 @@ with tab3:
                 hovermode="x unified"
             )
             fig.update_traces(
-                hovertemplate="%{fullData.name}: <b>%{y:,.1f} 억원</b><extra></extra>"
+                hovertemplate="<b>%{y:,.1f} 억원</b>"
             )
             apply_premium_chart_theme(fig)
             st.plotly_chart(fig, width='stretch')
