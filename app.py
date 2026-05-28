@@ -306,7 +306,8 @@ st.markdown(
         
         /* Custom Premium Table with Sticky Headers for Light Mode */
         .premium-table {
-            width: 100%;
+            width: max-content !important;
+            table-layout: fixed !important;
             border-collapse: separate !important;
             border-spacing: 0 !important;
             border-top: 1px solid #E2E8F0 !important;
@@ -610,7 +611,7 @@ def df_to_merged_html(df):
             w = sticky_cols[col]["width"]
             html += f'<col style="width: {w}; min-width: {w}; max-width: {w};">'
         else:
-            html += '<col style="width: auto;">'
+            html += '<col style="width: 120px; min-width: 120px; max-width: 120px;">'
     html += '</colgroup><thead><tr>'
     
     for idx, col in enumerate(visible_cols):
