@@ -913,8 +913,8 @@ with tab3:
         cols = list(pivot.columns)
 
         c1, c2 = st.columns(2)
-        m_curr = c1.selectbox("비교일 (당월)", cols, index=len(cols) - 1)
-        m_prev = c2.selectbox("기준일 (전월)", cols, index=len(cols) - 2)
+        m_curr = c1.selectbox("기준일", cols, index=len(cols) - 1)
+        m_prev = c2.selectbox("비교일", cols, index=len(cols) - 2)
 
         if m_prev == m_curr:
             cmp = pd.DataFrame(index=pivot.index)
@@ -1008,7 +1008,7 @@ with tab3:
                 hovermode="x unified"
             )
             fig.update_traces(
-                hovertemplate="%{y:,.1f} 억원<extra></extra>"
+                hovertemplate="%{fullData.name}: <b>%{y:,.1f} 억원</b><extra></extra>"
             )
             apply_premium_chart_theme(fig)
             st.plotly_chart(fig, width='stretch')
