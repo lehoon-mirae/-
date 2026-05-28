@@ -583,11 +583,11 @@ def df_to_merged_html(df):
     def get_row_style(row):
         t = row.get("행구분", "")
         if t == "총합계":
-            return "background-color: #FFF0E0 !important; color: #0F172A !important; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
+            return "background-color: #FFE4D0 !important; color: #C2410C !important; font-weight: 700; border-top: 2px solid #EC6608; border-bottom: 2px solid #EC6608;"
         if t == "대분류합계":
-            return "background-color: #FFF8F2 !important; color: #004B93 !important; font-weight: 600; border-bottom: 1px solid #FDE8D0;"
+            return "background-color: #FFF0DF !important; color: #004B93 !important; font-weight: 700; border-bottom: 1px solid #FDE8D0;"
         if t in ("중분류소계", "소계"):
-            return "background-color: #FAF6F0 !important; color: #334155 !important;"
+            return "background-color: #F5EFE6 !important; color: #1E293B !important; font-weight: 600; border-bottom: 1px solid #E2E8F0;"
         return "background-color: #FFFFFF !important; color: #475569 !important;"
 
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
@@ -683,11 +683,11 @@ def df_to_merged_html(df):
                 # 행구분에 따른 명확한 고정 셀 배경색 매핑 (상속 버그 방지 및 강제 불투명 채우기)
                 row_type = row.get("행구분", "")
                 if row_type == "총합계":
-                    bg_col = "#FFF0E0"
+                    bg_col = "#FFE4D0"
                 elif row_type == "대분류합계":
-                    bg_col = "#FFF8F2"
+                    bg_col = "#FFF0DF"
                 elif row_type in ("중분류소계", "소계"):
-                    bg_col = "#FAF6F0"
+                    bg_col = "#F5EFE6"
                 else:
                     bg_col = "#FFFFFF"
                 
