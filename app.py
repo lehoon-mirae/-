@@ -592,7 +592,7 @@ def df_to_merged_html(df):
     num_cols = [c for c in MEASURE_COLS if c not in PCT_COLS]
     
     # 스크롤 영역 지정을 위한 wrapper div 추가 및 테이블 마진 제거
-    html = '<div style="max-height: 780px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
+    html = '<div style="width: 100% !important; max-width: 100% !important; max-height: 780px; overflow-y: auto; overflow-x: auto; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06); display: block !important;"><table class="premium-table" style="margin:0; border:none;"><thead><tr>'
     
     # 헤더 생성
     visible_cols = [col for col in df.columns if col not in ("행구분", "자산대분류")]
